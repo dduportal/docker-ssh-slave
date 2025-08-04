@@ -130,12 +130,15 @@ function Get-Port($container, $port=22) {
 
 # run a given command through ssh on the test container.
 function Run-ThruSSH($container, $privateKeyVal, $cmd) {
+    Write-Host 'Start Run-ThruSSH'
     $SSH_PORT = Get-Port $container 22
+    Write-Host "SSH_PORT: $SSH_PORT"
     if([System.String]::IsNullOrWhiteSpace($SSH_PORT)) {
         Write-Error 'Failed to get SSH port'
         return -1, $null, $null
     } else {
         $TMP_PRIV_KEY_FILE = New-TemporaryFile
+        Write-Host "TMP_PRIV_KEY_FILE: $TMP_PRIV_KEY_FILE"
         Set-Content -Path $TMP_PRIV_KEY_FILE -Value "$privateKeyVal"
 
         $exitCode, $stdout, $stderr = Run-Program (Join-Path $PSScriptRoot 'ssh.exe') "-v -i `"${TMP_PRIV_KEY_FILE}`" -o LogLevel=quiet -o UserKnownHostsFile=NUL -o StrictHostKeyChecking=no -l jenkins localhost -p $SSH_PORT $cmd"
